@@ -1,4 +1,4 @@
-# Source code for Swallow Corpus Version 1
+# Swallow Corpus Version 1
 
 This repository provides Python implementation for building Swallow Corpus Version 1, a large Japanese web corpus (Okazaki et al., 2024), from Common Crawl archives.
 
@@ -172,8 +172,8 @@ Bibtex for the COLM paper:
 Bibtex for the Github page:
 
 ```
-@misc{Okazaki:COLM2024,
-  title={Doubri: C++ implementation of deduplication},
+@misc{Okazaki:Swallow-corpus-v1,
+  title={Swallow Corpus Version 1},
   author={Naoaki Okazaki},
   howpublished={\url{https://github.com/swallow-llm/swallow-corpus}},
   year="2024",
