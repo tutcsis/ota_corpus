@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "ota_corpus"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{ include = "src" }]
+
+
+[tool.poetry.dependencies]
+python = "^3.10"
+torch = {version = "^2.5.1+cu118", source = "pytorch-gpu-src"}
+torchvision = {version = "^0.20.1+cu118", source = "pytorch-gpu-src"}
+torchaudio = {version = "^2.5.1+cu118", source = "pytorch-gpu-src"}
+transformers = {extras = ["deepspeed"], version = "^4.46.2"}
+accelerate = "^1.1.1"
+bitsandbytes = "^0.44.1"
+datetime = "^5.5"
+deepspeed = "^0.14.4"
+datasets = "^3.2.0"
+numpy = "^1.26.4"
+peft = "^0.13.2"
+typed-argument-parser = "^1.10.1"
+evaluate = "^0.4.3"
+
+
+[[tool.poetry.source]]
+name = "pytorch-gpu-src"
+url = "https://download.pytorch.org/whl/cu118"
+priority = "explicit"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
