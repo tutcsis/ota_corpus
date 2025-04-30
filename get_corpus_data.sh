@@ -11,7 +11,16 @@ HF_HOME=/lwork/${LOGNAME}/.cache/huggingface
 TRITON_CACHE_DIR=/lwork/${LOGNAME}/.cache/triton
 export TORCH_HOME TRANSFORMERS_CACHE HF_HOME TRITON_CACHE_DIR
 
-WARC_LIST="2024_46_warc.txt"
+WARC_URL="https://data.commoncrawl.org/crawl-data/CC-MAIN-2025-13/warc.paths.gz"
+WARC_NAME=$(echo "$WARC_URL" | grep -oP "CC-MAIN-\d{4}-\d{2}" | head -1)_warc_paths
+
+echo "WARC_NAME: ${WARC_NAME}"
+curl -# -o "data/${WARC_NAME}.gz" "${WARC_URL}"
+gunzip "data/${WARC_NAME}.gz"
+mv "data/${WARC_NAME}" "data/${WARC_NAME}.txt"
+
+WARC_LIST=${WARC_NAME}.txt
+echo "WARC_LIST: ${WARC_LIST}"
 
 get_random_warc_path() {
   local total_lines=$(wc -l < "data/${WARC_LIST}")
@@ -40,7 +49,7 @@ get_unique_warc_path() {
 }
 
 
-MAX_FILES=100
+MAX_FILES=1
 PROCESSED=0
 FAILED=0
 
