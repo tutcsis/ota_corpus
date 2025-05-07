@@ -33,3 +33,6 @@ echo "WARC_URL: ${WARC_URL}, curr_line: ${curr_line}, WARC_NAME: ${WARC_NAME}"
 echo "WARC_PATH: ${WARC_PATH}, BASE_NAME: ${BASE_NAME}"
 echo "line: ${curr_line}, path: data/phase2/${BASE_NAME}-phase2.jsonl"
 echo "PHASE2_PATHES: ${PHASE2_PATHES[@]}"
+
+mv "./log/${PBS_JOBID}.OU" "./log/${PBS_JOBNAME}.o${PBS_JOBID%.xregistry*}"
+
