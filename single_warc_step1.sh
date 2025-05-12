@@ -26,14 +26,16 @@ WARC_PATH=$(sed -n "${curr_line}p" "data/${WARC_NAME}.txt")
 BASE_NAME=$(basename ${WARC_PATH} .warc.gz)
 DOUBRI_DIR="doubri-1.0/build"
 
-# phase1, phase2, phase3(only doubri-minhash, doubri-init)
+# phase1, phase2, phase3(only doubri-minhash, doubri-init, doubri-self)
 curl -# -o "data/${BASE_NAME}.warc.gz" "https://data.commoncrawl.org/${WARC_PATH}"
 echo "data/${BASE_NAME}.warc.gz" | poetry run python warc2raw.py
 rm -f "data/${BASE_NAME}.warc.gz"
 gunzip "data/${BASE_NAME}.jsonl.gz"
 mv "data/${BASE_NAME}.jsonl" "data/phase1/${BASE_NAME}-phase1.jsonl"
 poetry run python annotate.py < "data/phase1/${BASE_NAME}-phase1.jsonl" > "data/phase2/${BASE_NAME}-phase2.jsonl"
-"${DOUBRI_DIR}/doubri-minhash" "data/doubri_minhash/${BASE_NAME}-phase2.jsonl" < "data/phase2/${BASE_NAME}-phase2.jsonl"
-"${DOUBRI_DIR}/doubri-init" "data/doubri_minhash/${BASE_NAME}-phase2.jsonl" > "data/doubri_minhash/${BASE_NAME}-phase2.jsonl.f"
+"${DOUBRI_DIR}/doubri-minhash" "data/doubri_minhash/${BASE_NAME}-phase2.hash" < "data/phase2/${BASE_NAME}-phase2.jsonl"
+"${DOUBRI_DIR}/doubri-init" "data/doubri_minhash/${BASE_NAME}-phase2.hash" > "data/doubri_minhash/${BASE_NAME}-phase2.f"
+mkdir -p "data/doubri-indexes/${BASE_NAME}"
+"${DOUBRI_DIR}/doubri-self" "data/doubri-indexes/${BASE_NAME}/input.index" < "data/doubri_minhash/${BASE_NAME}-phase2.f"
 
 mv "./log/${PBS_JOBID}.OU" "./log/${PBS_JOBNAME}.o${PBS_JOBID%.xregistry*}"

@@ -16,10 +16,14 @@ export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 WARC_NAME=$(echo "$WARC_URL" | grep -oP "CC-MAIN-\d{4}-\d{2}" | head -1)_warc_paths
 WARC_PATH=$(sed -n "${curr_line}p" "data/${WARC_NAME}.txt")
 BASE_NAME=$(basename ${WARC_PATH} .warc.gz)
+INDEX_FILE="doubri-1.0/indexes/input.index"
 DOUBRI_DIR="doubri-1.0/build"
 
+# phase3(only doubri-other)
+# "${DOUBRI_DIR}/doubri-other" "$INDEX_FILE" "data/doubri_minhash/${BASE_NAME}-phase2.jsonl.f"
+
 # phase3(only doubri-apply), phase4, delete .warc.gz file
-# "${DOUBRI_DIR}/doubri-apply" "data/doubri_minhash/${BASE_NAME}-phase2.jsonl.f" < "data/phase2/${BASE_NAME}-phase2.jsonl" > "data/phase3/${BASE_NAME}-phase3.jsonl"
+"${DOUBRI_DIR}/doubri-apply" "data/doubri_minhash/${BASE_NAME}-phase2.f" < "data/phase2/${BASE_NAME}-phase2.jsonl" > "data/phase3/${BASE_NAME}-phase3.jsonl"
 poetry run python modify.py < "data/phase3/${BASE_NAME}-phase3.jsonl" > "data/phase4/${BASE_NAME}-phase4.jsonl"
 
 mv "./log/${PBS_JOBID}.OU" "./log/${PBS_JOBNAME}.o${PBS_JOBID%.xregistry*}"

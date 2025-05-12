@@ -22,7 +22,7 @@ while true; do
 done
 
 echo "Start multi_warc jobs.."
-qsub ${GPUQOPTS} -N multi_warc_line${LINE_END} -k doe -j oe -o ./log -v DOCKER_IMAGE=${DOCKER_IMAGE},curr_line=${LINE_END},WARC_URL=${WARC_URL} multi_warc.sh
+qsub ${GPUQOPTS} -N multi_warc_line${LINE_END} -k doe -j oe -o ./log -v DOCKER_IMAGE=${DOCKER_IMAGE},LINE_END=${LINE_END},WARC_URL=${WARC_URL} multi_warc.sh
 sleep 3
 
 while true; do
