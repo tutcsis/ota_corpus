@@ -1,46 +1,56 @@
-EPOCHS="1 2"
-LRS="1e-05 2e-05 4e-05 1e-04 2e-04 4e-04"
-WRS="0.05 0.1 0.2"
-VTS="2 4 8 16"
+curr_line=1
+WARC_URL="https://data.commoncrawl.org/crawl-data/CC-MAIN-2025-08/warc.paths.gz"
 
-GPUQOPTS="-q gLrchq -l select=1:ncpus=4:mem=64G:ngpus=1 -v DOCKER_IMAGE=imc.tut.ac.jp/transformers-pytorch-cuda118:4.37.2"
-TORCH_HOME=/work/${LOGNAME}/.cache/torch
-TRANSFORMERS_CACHE=/work/${LOGNAME}/.cache/transformers
-HF_HOME=/work/${LOGNAME}/.cache/huggingface
-TRITON_CACHE_DIR=/work/${LOGNAME}/.cache/triton
+WARC_NAME=$(echo "$WARC_URL" | grep -oP "CC-MAIN-\d{4}-\d{2}" | head -1)_warc_paths
+WARC_PATH=$(sed -n "${curr_line}p" "data/${WARC_NAME}.txt")
+BASE_NAME=$(basename ${WARC_PATH} .warc.gz)
 
-generate_command(){
-	epoch=${1}
-	learningrate=${2}
-	warmupratio=${3}
-	virtual_tokens=${4}
-	workdir=`pwd`
-	cat <<EOF
-	
-cd ${workdir} && \
-export TORCH_HOME=${TORCH_HOME} && \
-export TRANSFORMERS_CACHE=${TRANSFORMERS_CACHE} && \
-export HF_HOME=${HF_HOME} && \
-export TRITON_CACHE_DIR=${TRITON_CACHE_DIR} && \
-export TORCH_USE_CUDA_DSA=1 && \
-export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True && \
-poetry run python source_selection/source_selection.py \
-	--output_dir ./500-random-sourceselection/llama_ep${epoch}_lr${learningrate}_wr${warmupratio}_vt${virtual_tokens} \
-	--num_epochs ${epoch} \
-	--learning_rate ${learningrate} \
-	--warmup_ratio ${warmupratio} \
-	--num_virtual_tokens ${virtual_tokens}
-EOF
-}
+PREFIX=$(echo "$WARC_URL" | grep -oP "CC-MAIN-\d{4}-\d{2}" | head -1 |\
+  sed -n "1p" "data/$(cat)_warc_paths.txt" | basename $(cat) .warc.gz |\
+  sed -E 's/-[0-9]{5}$//'
+)
+echo "prefix: ${PREFIX}"
+LINE_START=1
+LINE_END=5
 
-for epoch in ${EPOCHS}; do
-	for lr in ${LRS}; do
-		for wr in ${WRS}; do
-			for vt in ${VTS}; do
-				generate_command ${epoch} ${lr} ${wr} ${vt} |\
-				qsub ${GPUQOPTS} -N parameter_search_ep${epoch}_lr${lr}_wr${wr}_vt${vt} -k doe -j oe
-				sleep 3
-			done
-		done
-	done
+LINES=$(seq -s " " $((LINE_START-1)) $((LINE_END-1)))
+echo "LINES: ${LINES}"
+
+# for i in $(seq 0 ${LINE_END}); do
+#   printf "%05d\n" $i
+# done
+
+# separate WARC path
+WARC_PREFIX=$(echo ${BASE_NAME} | sed -E 's/-[0-9]{5}$//')
+WARC_INDEX=$(echo ${BASE_NAME} | grep -oP '(?<=-)[0-9]{5}$')
+
+for i in $(seq 0 $((LINE_END-1))); do
+  # echo "index: data/indexes/${PREFIX}/$(printf "%05d\n" $i)/input.index"
+  # hash_texts=""
+  # for line_id in $(seq $((i+1)) $((LINE_END-1))); do
+  #   hash_texts="${hash_texts} $(printf "%05d\n" $line_id).hash"
+  # done
+  # echo "HASH_TEXT: ${hash_texts}"
+  for line_id in $(seq $((i+1)) $((LINE_END-1))); do
+    printf "%05d\n" $line_id | echo -n "data/hashes/$(cat).hash "
+  done | echo "data/indexes/${PREFIX}/$(printf "%05d\n" $i)/input.index $(cat)"
+  echo "--------------------"
 done
+
+
+echo "WARC name: ${WARC_NAME}"
+echo "WARC path: ${WARC_PATH}"
+echo "WARC prefix: ${WARC_PREFIX}"
+echo "WARC number: ${WARC_INDEX}"
+echo "BASE name: ${BASE_NAME}"
+echo "---------------------------"
+echo "HASH: data/doubri_minhash/${WARC_PREFIX}/${WARC_INDEX}.hash"
+echo "FLAG: data/doubri_flag/${WARC_PREFIX}/${WARC_INDEX}.f"
+echo "INDEX: data/doubri_indexes/${WARC_PREFIX}/${WARC_INDEX}/input.index"
+echo "---------------------------"
+echo "phase1: data/phase1/${BASE_NAME}-phase1.jsonl"
+echo "phase2: data/phase2/${BASE_NAME}-phase2.jsonl"
+echo "phase3: data/phase3/${BASE_NAME}-phase3.jsonl"
+echo "phase4: data/phase4/${BASE_NAME}-phase4.jsonl"
+echo "---------------------------"
+
