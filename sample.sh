@@ -11,7 +11,7 @@ PREFIX=$(echo "$WARC_URL" | grep -oP "CC-MAIN-\d{4}-\d{2}" | head -1 |\
 )
 echo "prefix: ${PREFIX}"
 LINE_START=1
-LINE_END=5
+LINE_END=100
 
 LINES=$(seq -s " " $((LINE_START-1)) $((LINE_END-1)))
 echo "LINES: ${LINES}"
@@ -24,33 +24,52 @@ echo "LINES: ${LINES}"
 WARC_PREFIX=$(echo ${BASE_NAME} | sed -E 's/-[0-9]{5}$//')
 WARC_INDEX=$(echo ${BASE_NAME} | grep -oP '(?<=-)[0-9]{5}$')
 
-for i in $(seq 0 $((LINE_END-1))); do
-  # echo "index: data/indexes/${PREFIX}/$(printf "%05d\n" $i)/input.index"
-  # hash_texts=""
-  # for line_id in $(seq $((i+1)) $((LINE_END-1))); do
-  #   hash_texts="${hash_texts} $(printf "%05d\n" $line_id).hash"
-  # done
-  # echo "HASH_TEXT: ${hash_texts}"
-  for line_id in $(seq $((i+1)) $((LINE_END-1))); do
-    printf "%05d\n" $line_id | echo -n "data/hashes/$(cat).hash "
-  done | echo "data/indexes/${PREFIX}/$(printf "%05d\n" $i)/input.index $(cat)"
-  echo "--------------------"
-done
+# for i in $(seq 0 $((LINE_END-1))); do
+#   # echo "index: data/indexes/${PREFIX}/$(printf "%05d\n" $i)/input.index"
+#   # hash_texts=""
+#   # for line_id in $(seq $((i+1)) $((LINE_END-1))); do
+#   #   hash_texts="${hash_texts} $(printf "%05d\n" $line_id).hash"
+#   # done
+#   # echo "HASH_TEXT: ${hash_texts}"
+#   for line_id in $(seq $((i+1)) $((LINE_END-1))); do
+#     printf "%05d\n" $line_id | echo -n "data/hashes/$(cat).hash "
+#   done | echo "data/indexes/${PREFIX}/$(printf "%05d\n" $i)/input.index $(cat)"
+#   echo "--------------------"
+# done
+# for curr_id in $(seq $((LINE_START)) $((LINE_END-1))); do
+#   printf "%05d\n" $curr_id | echo -n "data/hashes/$(cat).hash "
+# done | echo data/indexes/${PREFIX}/$(printf "%05d\n" $((LINE_START-1)))/input.index $(cat)
+
+curr_id=0
+for curr_id in $(seq $((LINE_ID+1)) $((LINE_END-1))); do
+  printf "%05d\n" $curr_id | echo -n "data/hashes/$(cat).hash "
+done | echo data/indexes/${PREFIX}/$(printf "%05d\n" $LINE_ID)/input.index $(cat)
 
 
-echo "WARC name: ${WARC_NAME}"
-echo "WARC path: ${WARC_PATH}"
-echo "WARC prefix: ${WARC_PREFIX}"
-echo "WARC number: ${WARC_INDEX}"
-echo "BASE name: ${BASE_NAME}"
-echo "---------------------------"
-echo "HASH: data/doubri_minhash/${WARC_PREFIX}/${WARC_INDEX}.hash"
-echo "FLAG: data/doubri_flag/${WARC_PREFIX}/${WARC_INDEX}.f"
-echo "INDEX: data/doubri_indexes/${WARC_PREFIX}/${WARC_INDEX}/input.index"
-echo "---------------------------"
-echo "phase1: data/phase1/${BASE_NAME}-phase1.jsonl"
-echo "phase2: data/phase2/${BASE_NAME}-phase2.jsonl"
-echo "phase3: data/phase3/${BASE_NAME}-phase3.jsonl"
-echo "phase4: data/phase4/${BASE_NAME}-phase4.jsonl"
-echo "---------------------------"
+# rm -f data/hashes/*
+# for i in ${LINES}; do
+#   echo $i
+#   if [ `find data/hashes/ -type f | wc -l` -eq 0 ]; then
+#     cp -rf "data/doubri_minhash/${WARC_PREFIX}/"* "data/hashes/"
+#     echo "No files found in data/hashes/"
+#     echo "WARC_PREFIX: ${WARC_PREFIX}"
+#   fi
+# done
+
+
+# echo "WARC name: ${WARC_NAME}"
+# echo "WARC path: ${WARC_PATH}"
+# echo "WARC prefix: ${WARC_PREFIX}"
+# echo "WARC number: ${WARC_INDEX}"
+# echo "BASE name: ${BASE_NAME}"
+# echo "---------------------------"
+# echo "HASH: data/doubri_minhash/${WARC_PREFIX}/${WARC_INDEX}.hash"
+# echo "FLAG: data/doubri_flag/${WARC_PREFIX}/${WARC_INDEX}.f"
+# echo "INDEX: data/doubri_indexes/${WARC_PREFIX}/${WARC_INDEX}/input.index"
+# echo "---------------------------"
+# echo "phase1: data/phase1/${BASE_NAME}-phase1.jsonl"
+# echo "phase2: data/phase2/${BASE_NAME}-phase2.jsonl"
+# echo "phase3: data/phase3/${BASE_NAME}-phase3.jsonl"
+# echo "phase4: data/phase4/${BASE_NAME}-phase4.jsonl"
+# echo "---------------------------"
 

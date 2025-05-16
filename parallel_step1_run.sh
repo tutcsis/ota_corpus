@@ -3,7 +3,7 @@ LINE_END=100
 LINES=$(seq -s " " ${LINE_START} ${LINE_END})
 WARC_URL="https://data.commoncrawl.org/crawl-data/CC-MAIN-2025-08/warc.paths.gz"
 
-GPUQOPTS="-q gLrchq -l select=1:ncpus=4:mem=64G:ngpus=1"
+GPUQOPTS="-q gLrchq -l select=1:ncpus=1:mem=4G:ngpus=1"
 DOCKER_IMAGE="imc.tut.ac.jp/transformers-pytorch-cuda118:4.37.2"
 
 echo "LINES: ${LINES}"

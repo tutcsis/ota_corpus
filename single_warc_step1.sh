@@ -34,14 +34,14 @@ DOUBRI_DIR="doubri-1.0/build"
 # WARC index: 00000
 
 # phase1(downlad warc, convert to jsonl)
-curl -# -o "data/${BASE_NAME}.warc.gz" "https://data.commoncrawl.org/${WARC_PATH}"
-echo "data/${BASE_NAME}.warc.gz" | poetry run python warc2raw.py
-rm -f "data/${BASE_NAME}.warc.gz"
-gunzip "data/${BASE_NAME}.jsonl.gz"
-mv "data/${BASE_NAME}.jsonl" "data/phase1/${BASE_NAME}-phase1.jsonl"
+# curl -# -o "data/${BASE_NAME}.warc.gz" "https://data.commoncrawl.org/${WARC_PATH}"
+# echo "data/${BASE_NAME}.warc.gz" | poetry run python warc2raw.py
+# rm -f "data/${BASE_NAME}.warc.gz"
+# gunzip "data/${BASE_NAME}.jsonl.gz"
+# mv "data/${BASE_NAME}.jsonl" "data/phase1/${BASE_NAME}-phase1.jsonl"
 
-# phase2(annotate jsonl)
-poetry run python annotate.py < "data/phase1/${BASE_NAME}-phase1.jsonl" > "data/phase2/${BASE_NAME}-phase2.jsonl"
+# # phase2(annotate jsonl)
+# poetry run python annotate.py < "data/phase1/${BASE_NAME}-phase1.jsonl" > "data/phase2/${BASE_NAME}-phase2.jsonl"
 
 # phase3(only doubri-minhash, doubri-init, doubri-self)
 mkdir -p "data/doubri_minhash/${WARC_PREFIX}"

@@ -1,6 +1,6 @@
 # WARC_URL="https://data.commoncrawl.org/crawl-data/CC-MAIN-2025-08/warc.paths.gz"
 # LINE_END=5
-echo "LINE_ID: ${LINE_ID}"
+echo "LINE_ID: ${LINE_ID}, LINE_END: ${LINE_END}"
 echo "curr_line: ${curr_line}, WARC_URL: ${WARC_URL}"
 
 # path settings
@@ -24,19 +24,14 @@ PREFIX=$(echo "$WARC_URL" | grep -oP "CC-MAIN-\d{4}-\d{2}" | head -1 |\
 # INDEX_FILE="doubri-1.0/indexes/input.index"
 DOUBRI_DIR="doubri-1.0/build"
 
-# move hash files
-mkdir -p "data/hashes"
-if [ -d "data/doubri_minhash/${PREFIX}" ]; then
-  echo "Files found in data/doubri_minhash/${PREFIX}"
-  rm -f data/hashes/*
-  mv "data/doubri_minhash/${PREFIX}" "data/hashes/"
-  echo "Moved files to data/hashes/"
-fi
+pwd
+ls -lh data/hashes/00001.hash
+ls -lh data/doubri_indexes/CC-MAIN-20250206114225-20250206144225/00000/input.index
 
 # phase3(only doubri-other)
 for curr_id in $(seq $((LINE_ID+1)) $((LINE_END-1))); do
   printf "%05d\n" $curr_id | echo -n "data/hashes/$(cat).hash "
-done | "${DOUBRI_DIR}/doubri-other" "data/indexes/${PREFIX}/$(printf "%05d\n" $LINE_ID)/input.index $(cat)"
+done | "${DOUBRI_DIR}/doubri-other" data/doubri_indexes/${PREFIX}/$(printf "%05d\n" $LINE_ID)/input.index $(cat)
 echo "--------------------"
 
 mv "./log/${PBS_JOBID}.OU" "./log/${PBS_JOBNAME}.o${PBS_JOBID%.xregistry*}"

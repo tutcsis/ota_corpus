@@ -20,7 +20,7 @@ WARC_PREFIX=$(echo ${BASE_NAME} | sed -E 's/-[0-9]{5}$//')
 WARC_INDEX=$(echo ${BASE_NAME} | grep -oP '(?<=-)[0-9]{5}$')
 DOUBRI_DIR="doubri-1.0/build"
 
-# phase3(only doubri-apply), phase4, delete .warc.gz file
+# phase3(only doubri-apply), phase4
 "${DOUBRI_DIR}/doubri-apply" "data/doubri_flag/${WARC_PREFIX}/${WARC_INDEX}.f" < "data/phase2/${BASE_NAME}-phase2.jsonl" > "data/phase3/${BASE_NAME}-phase3.jsonl"
 poetry run python modify.py < "data/phase3/${BASE_NAME}-phase3.jsonl" > "data/phase4/${BASE_NAME}-phase4.jsonl"
 
