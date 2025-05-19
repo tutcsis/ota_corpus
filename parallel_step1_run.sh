@@ -18,6 +18,6 @@ echo "Start step1 jobs.."
 #   sleep 3
 # done
 for group_i in $(seq 0 $((GROUP_LEN-1))); do
-  qsub ${GPUQOPTS} -N single_warc_step1_group${group_i} -k doe -j oe -o ./log -v DOCKER_IMAGE=${DOCKER_IMAGE},GROUP_SIZE=${GROUP_SIZE},group_i=${group_i},WARC_URL=${WARC_URL} single_warc_step1.sh
+  qsub ${GPUQOPTS} -N single_warc_step1_group${group_i} -k doe -j oe -o ./log -v DOCKER_IMAGE=${DOCKER_IMAGE},GROUP_SIZE=${GROUP_SIZE},GROUP_LEN=${GROUP_LEN},group_i=${group_i},WARC_URL=${WARC_URL} single_warc_step1.sh
   sleep 3
 done

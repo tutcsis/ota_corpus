@@ -1,5 +1,5 @@
 # echo "curr_line: ${curr_line}, WARC_URL: ${WARC_URL}"
-echo "GROUP_SIZE: ${GROUP_SIZE}, group_i: ${group_i},WARC_URL: ${WARC_URL}"
+echo "GROUP_SIZE: ${GROUP_SIZE}, GROUP_LEN: ${GROUP_LEN}, group_i: ${group_i}, WARC_URL: ${WARC_URL}"
 
 # path settings
 TORCH_HOME=/work/${LOGNAME}/.cache/torch
@@ -23,7 +23,7 @@ if [ ! -f "data/${WARC_NAME}.txt" ]; then
   mv "data/${WARC_NAME}" "data/${WARC_NAME}.txt"
 fi
 
-for curr_line in $(seq $((group_i*GROUP_SIZE+1)) $(((group_i+1)*GROUP_SIZE))); do
+for curr_line in $(seq $((group_i*GROUP_SIZE+1)) $((group_i*GROUP_SIZE+GROUP_SIZE))); do
   WARC_PATH=$(sed -n "${curr_line}p" "data/${WARC_NAME}.txt")
   BASE_NAME=$(basename ${WARC_PATH} .warc.gz)
   WARC_PREFIX=$(echo ${BASE_NAME} | sed -E 's/-[0-9]{5}$//')
@@ -49,9 +49,8 @@ for curr_line in $(seq $((group_i*GROUP_SIZE+1)) $(((group_i+1)*GROUP_SIZE))); d
   mkdir -p "data/doubri_minhash/${WARC_PREFIX}"
   # mkdir -p "data/doubri_flag/${WARC_PREFIX}"
   # mkdir -p "data/doubri_indexes/${WARC_PREFIX}/${WARC_INDEX}"
-  # "${DOUBRI_DIR}/doubri-minhash" "data/doubri_minhash/${WARC_PREFIX}/${WARC_INDEX}.hash" < "data/phase2/${BASE_NAME}-phase2.jsonl"
-  # "${DOUBRI_DIR}/doubri-init" "data/doubri_minhash/${WARC_PREFIX}/${WARC_INDEX}.hash" > "data/doubri_minhash/${WARC_PREFIX}/${WARC_INDEX}.hash.f"
-  # "${DOUBRI_DIR}/doubri-self" "data/doubri_indexes/${WARC_PREFIX}/${WARC_INDEX}/input.index" < "data/doubri_flag/${WARC_PREFIX}/${WARC_INDEX}.f"
+  "${DOUBRI_DIR}/doubri-minhash" "data/doubri_minhash/${WARC_PREFIX}/${WARC_INDEX}.hash" < "data/phase2/${BASE_NAME}-phase2.jsonl"
+  "${DOUBRI_DIR}/doubri-init" "data/doubri_minhash/${WARC_PREFIX}/${WARC_INDEX}.hash" > "data/doubri_minhash/${WARC_PREFIX}/${WARC_INDEX}.hash.f"
 
   # echo "WARC name: ${WARC_NAME}"
   # echo "WARC path: ${WARC_PATH}"
