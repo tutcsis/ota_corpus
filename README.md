@@ -35,6 +35,7 @@ crawl-data/CC-MAIN-2025-08/segments/1738831951398.56/warc/CC-MAIN-20250206114225
   1. `doubri-minhash`: `.jsonl` ファイルから MinHash バケットを作成し、`.hash` ファイルとして出力
   2. `doubri-init`: `.hash` ファイルからフラグをテキストの数だけ作成 (初期値は `1`) し、`.f` として出力(フラグファイルの中身は `111..11` のようになっている)
   3. `doubri-self`: `.hash`, `.f` ファイル (渡すのは `.hash` のみ) からファイル内の重複箇所に当たるフラグを `1` から `0` に変更する。その後、インデックスファイルを `.index` として `r = 40` 個出力する(例: `input.index.00013`)。
+    - Group: データファイルをある程度の数でまとめたもの。`doubri-self`, `doubri-other` では、この Group ごと関数にパスを渡す
 
 - 結果として、各データに対してそれぞれ対応する `.hash`, `.f`, `.index` ファイルが生成されている。
 
@@ -86,3 +87,22 @@ data/doubri_minhash/CC-MAIN-20250206114225-20250206144225-00004-phase2.hash
 ### Phase 4
 - 修正: 句読点を `．，` から `。、` への変更、ヘッダーのトリミング
 - Phase 3 で出力された `.jsonl` ファイルを使用してテキストの修正を行う (`.jsonl` ファイルが出力される)。
+
+## Phase 3 の実行例
+- 使用する `.jsonl` ファイルを 100 個とする。
+- Group は 10 個で、それぞれが 10 ファイルあるとする。
+  - Group0: `00000.jsonl`, `00001.jsonl`, `00002.jsonl`, `00003.jsonl`, `00004.jsonl`, `00005.jsonl`, `00006.jsonl`, `00007.jsonl`, `00008.jsonl`, `00009.jsonl`
+  - Group1: `00010.jsonl`, `00011.jsonl`, `00012.jsonl`, `00013.jsonl`, `00014.jsonl`, `00015.jsonl`, `00016.jsonl`, `00017.jsonl`, `00018.jsonl`, `00019.jsonl`
+  ..
+  - Group9: `00090.jsonl`, `00091.jsonl`, `00092.jsonl`, `00093.jsonl`, `00094.jsonl`, `00095.jsonl`, `00096.jsonl`, `00097.jsonl`, `00098.jsonl`, `00099.jsonl`
+- `data/doubri_groups/group0.txt` などにはそれぞれ各グループが所属する hash ファイルのパスを格納
+
+### doubri-self
+- index ファイル: `data/doubri_indexes/group0/input.index`
+- hash ファイル: `data/doubri_minhash/00000.hash`, `data/doubri_minhash/00001.hash`, ..`data/doubri_minhash/00009.hash`
+これを全ての Group に対して繰り返す
+
+### doubri-other
+- index ファイル: `data/doubri_indexes/group0/input.index`
+- group ファイル : `data/doubri_groups/group0.txt`, `data/doubri_groups/group1.txt`, ..`data/doubri_groups/group9.txt`
+これを全ての index ファイル (今回はグループ数 = 10 なので 10 回) に対して繰り返す

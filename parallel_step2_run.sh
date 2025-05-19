@@ -1,5 +1,7 @@
 LINE_START=1
-LINE_END=5
+LINE_END=10
+GROUP_SIZE=10
+GROUP_LEN=10
 LINE_IDS=$(seq -s " " $((LINE_START-1)) $((LINE_END-1)))
 WARC_URL="https://data.commoncrawl.org/crawl-data/CC-MAIN-2025-08/warc.paths.gz"
 
@@ -20,16 +22,20 @@ if [ ${JOB_COUNT} -ne 0 ]; then
   exit 1
 fi
 
-rm -f data/hashes/*
-# copy hash files
-if [ `find data/hashes/ -type f | wc -l` -eq 0 ]; then
-    cp -rf "data/doubri_minhash/${PREFIX}/"* "data/hashes/"
-    cp -rf "data/doubri_flag/${PREFIX}/"* "data/hashes/"
-    echo "No files found in data/hashes/"
-    echo "WARC_PREFIX: ${PREFIX}"
-fi
-
+# rm -f data/hashes/*
+# # copy hash files
+# if [ `find data/hashes/ -type f | wc -l` -eq 0 ]; then
+#     cp -rf "data/doubri_minhash/${PREFIX}/"* "data/hashes/"
+#     cp -rf "data/doubri_flag/${PREFIX}/"* "data/hashes/"
+#     echo "No files found in data/hashes/"
+#     echo "WARC_PREFIX: ${PREFIX}"
+# fi
 echo "Start multi_warc jobs.."
-for i in ${LINE_IDS}; do
-  qsub ${GPUQOPTS} -N multi_warc_line${i} -k doe -j oe -o ./log -v DOCKER_IMAGE=${DOCKER_IMAGE},LINE_ID=${i},LINE_END=${LINE_END},WARC_URL=${WARC_URL} multi_warc.sh
+for i in $(seq 0 $((GROUP_LEN-1))); do
+  echo "GROUP_INDEX: ${i}"
+  qsub ${GPUQOPTS} -N multi_warc_group${i} -k doe -j oe -o ./log -v DOCKER_IMAGE=${DOCKER_IMAGE},GROUP_INDEX=${i},GROUP_SIZE=${GROUP_SIZE},GROUP_LEN=${GROUP_LEN},WARC_URL=${WARC_URL} multi_warc.sh
 done
+
+# for i in ${LINE_IDS}; do
+#   qsub ${GPUQOPTS} -N multi_warc_line${i} -k doe -j oe -o ./log -v DOCKER_IMAGE=${DOCKER_IMAGE},LINE_ID=${i},LINE_END=${LINE_END},WARC_URL=${WARC_URL} multi_warc.sh
+# done

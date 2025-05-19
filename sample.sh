@@ -14,7 +14,7 @@ LINE_START=1
 LINE_END=100
 
 LINES=$(seq -s " " $((LINE_START-1)) $((LINE_END-1)))
-echo "LINES: ${LINES}"
+# echo "LINES: ${LINES}"
 
 # for i in $(seq 0 ${LINE_END}); do
 #   printf "%05d\n" $i
@@ -40,11 +40,35 @@ WARC_INDEX=$(echo ${BASE_NAME} | grep -oP '(?<=-)[0-9]{5}$')
 #   printf "%05d\n" $curr_id | echo -n "data/hashes/$(cat).hash "
 # done | echo data/indexes/${PREFIX}/$(printf "%05d\n" $((LINE_START-1)))/input.index $(cat)
 
-curr_id=0
-for curr_id in $(seq $((LINE_ID+1)) $((LINE_END-1))); do
-  printf "%05d\n" $curr_id | echo -n "data/hashes/$(cat).hash "
-done | echo data/indexes/${PREFIX}/$(printf "%05d\n" $LINE_ID)/input.index $(cat)
+# curr_id=0
+# for curr_id in $(seq $((LINE_ID+1)) $((LINE_END-1))); do
+#   printf "%05d\n" $curr_id | echo -n "data/hashes/$(cat).hash "
+# done | echo data/indexes/${PREFIX}/$(printf "%05d\n" $LINE_ID)/input.index $(cat)
 
+GROUP_INDEX=2
+GROUP_SIZE=10
+GROUP_LEN=10
+## doubri-self
+# for group_i in $(seq 0 $((GROUP_INDEX-1))); do
+#   echo "GROUP_$((group_i))"
+  # rm -f "data/doubri_groups/group_${group_i}.txt" && touch "data/doubri_groups/group_${group_i}.txt"
+  # for hash_i in $(seq 0 $((GROUP_SIZE-1))); do
+  #   echo "data/doubri_minhash/${WARC_PREFIX}/`printf "%05d" $((group_i*10+hash_i))`.hash" >> "data/doubri_groups/group_${group_i}.txt"
+  # done
+  # while read line; do
+  #   echo "$line"
+  # done < "data/doubri_groups/group_${group_i}.txt"
+#   for curr_line in $(seq $((group_i*GROUP_SIZE+1)) $(((group_i+1)*GROUP_SIZE))); do
+#     echo $curr_line
+#   done
+#   echo "GROUP_${group_i} finished"
+# done
+
+## doubi-other
+group_i=2
+for i in $(seq $((group_i+1)) $((GROUP_LEN-1))); do
+  echo -n "data/doubri_groups/group_$((i)).txt "
+done | echo "data/doubri_indexes/group_${group_i}/input.index $(cat)"
 
 # rm -f data/hashes/*
 # for i in ${LINES}; do
