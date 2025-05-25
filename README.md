@@ -150,9 +150,80 @@ data/doubri_minhash/CC-MAIN-20250206114225-20250206144225-00004-phase2.hash
 ```00050.hash.f
 1111111111
 ```
+
+出力
+```
+0 tasks total, 0 tasks running, 0 tasks queued.
+```
+
 - このように、重複削除はできていなかった。
 **考えうる原因**
 - 各 group のパスが間違えている
 - group_1.txt の中身が間違えている(現在は `.hash`)
 - index ファイルのパスが間違えている
 - index ファイルの中身が壊れている(ファイルを開くことができないので確認できない)
+
+- とりあえず、dedup_other.cc を編集してきちんとファイルパスが読み込まれているかを確認する
+  - log/debug.log ファイルを作成して、そこにログを書き込んでいく
+  - 指定した `group_i.txt` ファイルから `.hash` ファイルを開くことができているかを確認したい
+  - dedup_other.cc は実行されていない。
+  - もしかして、変更したあとにもう一度build する必要があるのでは?
+  - Singularity に入ってから、次のコマンドを実行
+  ```
+  cmake -S . -B build
+  cmake --build build
+  ```
+
+  - argc が 2 と認識されている
+  ```
+  DEBUG: Program started with 2 arguments
+  doubri-1.0/build/doubri-other is the program name.
+  data/doubri_indexes/group_0/input.index data/doubri_groups/group_1.txt data/doubri_groups/group_2.txt data/doubri_groups/group_3.txt data/doubri_groups/group_4.txt data/doubri_groups/group_5.txt data/doubri_groups/group_6.txt data/doubri_groups/group_7.txt data/doubri_groups/group_8.txt data/doubri_groups/group_9.txt  is the index file.
+  DEBUG: total 0 tasks pushed to the pool.
+  ```
+
+  - `doubri-other` を実行している箇所のコードを変更してみる (引数をスペース区切りの文字列として渡していたので、配列を作成してから渡すように変更)
+  ```
+  args=("data/doubri_indexes/group_${GROUP_INDEX}/input.index")
+  for i in $(seq $((GROUP_INDEX+1)) $((GROUP_LEN-1))); do
+    args+=("data/doubri_groups/group_${i}.txt")
+  done
+  echo "args: ${args[@]}"
+  "${DOUBRI_DIR}/doubri-other" "${args[@]}"
+  ```
+
+```00010.hash.f
+1111011111
+```
+```00020.hash.f
+1111011111
+```
+```00030.hash.f
+0111011111
+```
+```00040.hash.f
+1111011111
+```
+```00050.hash.f
+0111011111
+```
+
+出力
+```
+10 tasks total, 10 tasks running, 0 tasks queued.
+DEBUG: Program started with 3 arguments
+doubri-1.0/build/doubri-other is the program name.
+data/doubri_indexes/group_8/input.index is the index file.
+DEBUG: total 10 tasks pushed to the pool.
+{"target": "00095.hash", "num_total": 1391, "num_active": 1232, "num_skips": 144, "num_drops": 15, "active_rate": 0.885694, "drop_rate": 0.010784}
+{"target": "00093.hash", "num_total": 1411, "num_active": 1227, "num_skips": 161, "num_drops": 23, "active_rate": 0.869596, "drop_rate": 0.016300}
+{"target": "00092.hash", "num_total": 1382, "num_active": 1205, "num_skips": 151, "num_drops": 26, "active_rate": 0.871925, "drop_rate": 0.018813}
+{"target": "00090.hash", "num_total": 679, "num_active": 614, "num_skips": 51, "num_drops": 14, "active_rate": 0.904271, "drop_rate": 0.020619}
+{"target": "00096.hash", "num_total": 1349, "num_active": 1158, "num_skips": 168, "num_drops": 23, "active_rate": 0.858414, "drop_rate": 0.017050}
+{"target": "00099.hash", "num_total": 969, "num_active": 818, "num_skips": 138, "num_drops": 13, "active_rate": 0.844169, "drop_rate": 0.013416}
+{"target": "00094.hash", "num_total": 1386, "num_active": 1217, "num_skips": 143, "num_drops": 26, "active_rate": 0.878066, "drop_rate": 0.018759}
+{"target": "00097.hash", "num_total": 1429, "num_active": 1207, "num_skips": 201, "num_drops": 21, "active_rate": 0.844647, "drop_rate": 0.014696}
+{"target": "00091.hash", "num_total": 1393, "num_active": 1229, "num_skips": 137, "num_drops": 27, "active_rate": 0.882268, "drop_rate": 0.019383}
+{"target": "00098.hash", "num_total": 1406, "num_active": 1204, "num_skips": 188, "num_drops": 14, "active_rate": 0.856330, "drop_rate": 0.009957}
+```
+

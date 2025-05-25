@@ -227,8 +227,8 @@ void dedup(std::string hash_filename, const BucketSet* bs)
 int main(int argc, char *argv[])
 {
     std::istream& is = std::cin;
-    std::ostream& os = std::cout;
-    std::ostream& es = std::cerr;
+    std::stringstream os;
+    // std::stringstream es;
     std::string index_filename(argv[1]);
     
     // Open the bucket indices.
@@ -243,32 +243,52 @@ int main(int argc, char *argv[])
 
     int total_tasks = 0;
     BS::thread_pool pool(124);
+    BS::synced_stream ses(std::cerr);
+
+    std::stringstream es;
+    es << "DEBUG: Program started with " << argc << " arguments" << std::endl;
+    es << argv[0] << " is the program name." << std::endl;
+    es << argv[1] << " is the index file." << std::endl;
+
     for (int i = 2; i < argc; ++i) {
+        std::stringstream es;
         std::ifstream ifs(argv[i]);
+        es << "argv[" << i << "] = " << argv[i] << std::endl;
+        // ses.print(es.str());
         if (ifs.fail()) {
             es << "ERROR: failed to open a target file: " << argv[i] << std::endl;
+            // ses.print(es.str());
             return 1;
         }
-        
+
+        es << "DEBUG: successfully opened a target file: " << argv[i] << std::endl;
+        // ses.print(es.str());
         for (;;) {
             std::string line;
             std::getline(ifs, line);
             if (ifs.eof()) {
                 break;
             }
-            pool.push_task(dedup, line, bs);
-            ++total_tasks;
+            if (!line.empty()) {
+                es << "DEBUG: read line " << line << std::endl;
+                pool.push_task(dedup, line, bs);
+                ++total_tasks;
+            }
         }
+        es << "DEBUG: finished reading file: " << argv[i] << std::endl;
+        // ses.print(es.str());
     }
+    es << "DEBUG: total " << total_tasks << " tasks pushed to the pool." << std::endl;
+    // ses.print(es.str());
 
-    BS::synced_stream ses(std::cerr);
     for (;;) {
         std::stringstream ss;
         ss <<
             pool.get_tasks_total() << " tasks total, " <<
             pool.get_tasks_running() << " tasks running, " <<
-            pool.get_tasks_queued() << " tasks queued.\r";
+            pool.get_tasks_queued() << " tasks queued.\n";
         ses.print(ss.str());
+        ses.print(es.str());
         pool.wait_for_tasks_duration(std::chrono::milliseconds(1000));
         if (pool.get_tasks_running() == 0) {
             break;

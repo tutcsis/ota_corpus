@@ -31,7 +31,7 @@ fi
 #     echo "WARC_PREFIX: ${PREFIX}"
 # fi
 echo "Start multi_warc jobs.."
-for i in $(seq 0 $((GROUP_LEN-1))); do
+for i in $(seq 0 $((GROUP_LEN-2))); do
   echo "GROUP_INDEX: ${i}"
   qsub ${GPUQOPTS} -N multi_warc_group${i} -k doe -j oe -o ./log -v DOCKER_IMAGE=${DOCKER_IMAGE},GROUP_INDEX=${i},GROUP_SIZE=${GROUP_SIZE},GROUP_LEN=${GROUP_LEN},WARC_URL=${WARC_URL} multi_warc.sh
 done

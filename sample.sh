@@ -65,7 +65,7 @@ GROUP_LEN=10
 # done
 
 ## doubi-other
-group_i=2
+group_i=8
 for i in $(seq $((group_i+1)) $((GROUP_LEN-1))); do
   echo -n "data/doubri_groups/group_$((i)).txt "
 done | echo "data/doubri_indexes/group_${group_i}/input.index $(cat)"

@@ -38,9 +38,12 @@ DOUBRI_DIR="doubri-1.0/build"
 #   echo "GROUP_${group_i} finished"
 # done
 
-for i in $(seq $((group_i+1)) $((GROUP_LEN-1))); do
-  echo -n "data/doubri_groups/group_$((i)).txt "
-done | "${DOUBRI_DIR}/doubri-other" "data/doubri_indexes/group_${group_i}/input.index $(cat)"
+args=("data/doubri_indexes/group_${GROUP_INDEX}/input.index")
+for i in $(seq $((GROUP_INDEX+1)) $((GROUP_LEN-1))); do
+  args+=("data/doubri_groups/group_${i}.txt")
+done
+echo "args: ${args[@]}"
+"${DOUBRI_DIR}/doubri-other" "${args[@]}"
 
 
 
