@@ -9,7 +9,7 @@ PREFIX=$(echo "$WARC_URL" | grep -oP "CC-MAIN-\d{4}-\d{2}" | head -1 |\
   sed -n "1p" "data/$(cat)_warc_paths.txt" | basename $(cat) .warc.gz |\
   sed -E 's/-[0-9]{5}$//'
 )
-echo "prefix: ${PREFIX}"
+# echo "prefix: ${PREFIX}"
 LINE_START=1
 LINE_END=100
 
@@ -23,6 +23,19 @@ LINES=$(seq -s " " $((LINE_START-1)) $((LINE_END-1)))
 # separate WARC path
 WARC_PREFIX=$(echo ${BASE_NAME} | sed -E 's/-[0-9]{5}$//')
 WARC_INDEX=$(echo ${BASE_NAME} | grep -oP '(?<=-)[0-9]{5}$')
+WARC_HEAD=$(sed -n "17p" "data/commoncrawl_urls.txt")
+echo "WARC_PREFIX: ${WARC_PREFIX}, WARC_INDEX: ${WARC_INDEX}, WARC_HEAD: ${WARC_HEAD}"
+# WARC_PREFIX: CC-MAIN-20250206114225-20250206144225
+# WARC_INDEX: 00000
+# WARC_HEAD: CC-MAIN-2023-23
+echo "${WARC_HEAD}/${WARC_PREFIX}"
+
+# phase1~4 run sample
+# python annotate.py < "data/phase1/sample-phase1.jsonl" > "data/phase2/sample-phase2.jsonl"
+# python modify.py < "data/phase2/sample-phase2.jsonl" > "data/phase4/sample-phase4.jsonl"
+
+
+
 
 # for i in $(seq 0 $((LINE_END-1))); do
 #   # echo "index: data/indexes/${PREFIX}/$(printf "%05d\n" $i)/input.index"
@@ -46,8 +59,16 @@ WARC_INDEX=$(echo ${BASE_NAME} | grep -oP '(?<=-)[0-9]{5}$')
 # done | echo data/indexes/${PREFIX}/$(printf "%05d\n" $LINE_ID)/input.index $(cat)
 
 GROUP_INDEX=2
-GROUP_SIZE=10
-GROUP_LEN=10
+GROUP_LEN=100
+
+# check line count of warc list file
+WARC_NAME=$(echo "$WARC_URL" | grep -oP "CC-MAIN-\d{4}-\d{2}" | head -1)_warc_paths
+TOTAL_LINES=$(wc -l < "data/${WARC_NAME}.txt")
+GROUP_SIZE=$((TOTAL_LINES / GROUP_LEN))
+echo "TOTAL_LINE: ${TOTAL_LINE},GROUP_SIZE: ${GROUP_SIZE}, GROUP_LEN: ${GROUP_LEN}"
+
+
+
 ## doubri-self
 # for group_i in $(seq 0 $((GROUP_INDEX-1))); do
 #   echo "GROUP_$((group_i))"
@@ -65,10 +86,10 @@ GROUP_LEN=10
 # done
 
 ## doubi-other
-group_i=8
-for i in $(seq $((group_i+1)) $((GROUP_LEN-1))); do
-  echo -n "data/doubri_groups/group_$((i)).txt "
-done | echo "data/doubri_indexes/group_${group_i}/input.index $(cat)"
+# group_i=8
+# for i in $(seq $((group_i+1)) $((GROUP_LEN-1))); do
+#   echo -n "data/doubri_groups/group_$((i)).txt "
+# done | echo "data/doubri_indexes/group_${group_i}/input.index $(cat)"
 
 # rm -f data/hashes/*
 # for i in ${LINES}; do
@@ -78,6 +99,21 @@ done | echo "data/doubri_indexes/group_${group_i}/input.index $(cat)"
 #     echo "No files found in data/hashes/"
 #     echo "WARC_PREFIX: ${WARC_PREFIX}"
 #   fi
+# done
+
+# check text length of each phase 1-4 file 
+# for i in $(seq 0 $((GROUP_LEN*GROUP_SIZE-1))); do
+#   file_sizes=()
+#   for phase in {1..4}; do
+#     phase_file="data/phase${phase}/${WARC_PREFIX}-`printf "%05d" $((i))`-phase${phase}.jsonl"
+#     if [ ! -f "$phase_file" ]; then
+#       echo "File not found: $phase_file"
+#       continue
+#     fi
+#     file_sizes+=($(wc -l < "$phase_file"))
+#     # echo "Phase ${phase} file: $phase_file"
+#   done
+#   echo "`printf "%05d" $((i))`: $(IFS=,; echo "${file_sizes[*]}"), phase1 and phase4 diff: $((${file_sizes[0]} - ${file_sizes[3]}))"
 # done
 
 

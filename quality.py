@@ -61,14 +61,20 @@ def duplicate_fraction(D, P, S, text):
 
     for n in range(2, 5):
         C = collections.Counter(ngram(text, n))
-        top_ngram, top_freq = C.most_common(1)[0]
-        total_freq = sum(f for _, f in C.items())
-        r[f'top_{n}gram_character_fraction'] = top_freq / total_freq if 0 < total_freq else 0.
+        if C:
+            top_ngram, top_freq = C.most_common(1)[0]
+            total_freq = sum(f for _, f in C.items())
+            r[f'top_{n}gram_character_fraction'] = top_freq / total_freq if 0 < total_freq else 0.
+        else:
+            r[f'top_{n}gram_character_fraction'] = 0.
 
     for n in range(5, 11):
         C = collections.Counter(ngram(text, n))
-        num_duplicates = sum(1 for _, f in C.items() if 1 < f)
-        r[f'duplicate_{n}gram_character_fraction'] = num_duplicates / len(C) if C else 0.
+        if C:
+            num_duplicates = sum(1 for _, f in C.items() if 1 < f)
+            r[f'duplicate_{n}gram_character_fraction'] = num_duplicates / len(C) if C else 0.
+        else:
+            r[f'duplicate_{n}gram_character_fraction'] = 0.
 
     return r
 
