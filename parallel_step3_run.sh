@@ -1,9 +1,10 @@
-GROUP_SIZE=10
-GROUP_LEN=10
+GROUP_LEN=14
+GROUP_SIZE=800
 
 WARC_CORPUS_LIST="data/warc_corpus_list.txt"
 WARC_HEAD=$(sed -n "17p" "data/commoncrawl_urls.txt")
 WARC_URL="https://data.commoncrawl.org/crawl-data/${WARC_HEAD}/warc.paths.gz"
+WARC_NAME=$(echo "$WARC_URL" | grep -oP "CC-MAIN-\d{4}-\d{2}" | head -1)_warc_paths
 
 echo "WARC_HEAD: ${WARC_HEAD}, WARC_URL: ${WARC_URL}"
 # WARC_HEAD is CC-MAIN-2023-23
@@ -13,7 +14,7 @@ DOCKER_IMAGE="imc.tut.ac.jp/transformers-pytorch-cuda118:4.37.2"
 
 # set GROUP_SIZE
 TOTAL_LINE=$(wc -l < "data/${WARC_NAME}.txt")
-GROUP_SIZE=$((TOTAL_LINE / GROUP_LEN))
+# GROUP_SIZE=$((TOTAL_LINE / GROUP_LEN))
 echo "TOTAL_LINE: ${TOTAL_LINE},GROUP_SIZE: ${GROUP_SIZE}, GROUP_LEN: ${GROUP_LEN}"
 
 echo "Start step2 jobs.."

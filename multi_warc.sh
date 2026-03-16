@@ -1,5 +1,5 @@
 START_TIME=$(date +%s)
-echo "step1 start: $(date)"
+echo "step2 start: $(date)"
 
 echo "GROUP_INDEX: ${GROUP_INDEX}, GROUP_SIZE: ${GROUP_SIZE}, GROUP_LEN: ${GROUP_LEN}"
 echo "WARC_HEAD: ${WARC_HEAD}, WARC_URL: ${WARC_URL}"
@@ -35,7 +35,7 @@ echo "args: ${args[@]}"
 
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME))
-echo "step1 is finished: $(date)"
-echo "step1's time: $((DURATION / 3600))hours, $((DURATION % 3600 / 60))minutes, $((DURATION % 60))seconds"
+echo "step2 is finished: $(date)"
+echo "step2's time: $((DURATION / 3600))hours, $((DURATION % 3600 / 60))minutes, $((DURATION % 60))seconds"
 
 mv "./log/${PBS_JOBID}.OU" "./log/${PBS_JOBNAME}.o${PBS_JOBID%.xregistry*}"

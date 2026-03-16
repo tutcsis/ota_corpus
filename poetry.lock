@@ -915,6 +915,17 @@ files = [
 all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2)"]
 
 [[package]]
+name = "ja-sentence-segmenter"
+version = "0.0.2"
+description = "sentence segmenter for japanese text"
+optional = false
+python-versions = ">=3.6,<4.0"
+files = [
+    {file = "ja_sentence_segmenter-0.0.2-py3-none-any.whl", hash = "sha256:237d99e79f9fe0e858310c088d9fb7d74e765954769ae6473197a0bd5ace4edb"},
+    {file = "ja_sentence_segmenter-0.0.2.tar.gz", hash = "sha256:caa373b504ff3f906688ac9cb9a761935a84e03c20d2a9741cfcb4f778859e35"},
+]
+
+[[package]]
 name = "jinja2"
 version = "3.1.6"
 description = "A very fast and expressive template engine."
@@ -3165,4 +3176,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "9478078e484cd06e223de043d4cc3bf254b33ad91b98d5a5b1d246f91eacb10f"
+content-hash = "fd7addf22f31ce718ed753f3fd607ca42cac9c97af878cb1909d43c2694d5cb0"

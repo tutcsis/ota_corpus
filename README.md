@@ -1,8 +1,22 @@
-# Ota Corpus
+# Ota Corpus について
 有害度判定分類機作成のために有害データのデータセットを作成する。
 Swallow Corpus 作成を参考にした(https://github.com/swallow-llm/swallow-corpus)
 
 CommonCrawl のデータを使用してフィルタリングを行い、データセットを作成する(https://data.commoncrawl.org/crawl-data/index.html)
+
+# ファイル・フォルダ構成
+- .venv: python のライブラリのバージョンを管理するのに使用。ここは触らない。
+- contrib: 有害表現のブラックリスト。Swallow Corpus の作成では使用していたが、今回は使用していない。
+- data: 取ってきたデータや出力されたデータ。基本的にはツイートデータや有害テキストデータセットを格納
+  - doubri_groups: phase3-3 の中間生成物
+  - doubri_minhash: phase3-1 の中間生成物
+  - phase1: `data/texts` フォルダに対して phase1 の処理を適応した後のもの
+  - phase2: `data/phase1` フォルダに対して phase2 の処理を適応した後のもの
+  - phase3: `data/phase2` フォルダに対して phase3 の処理を適応した後のもの
+  - phase4: `data/phase3` フォルダに対して phase4 の処理を適応した後のもの
+  - texts: Common Crawl Corpus から取ってきたテキスト
+- doubri-1.0: 重複削除をするツール
+- log: `qsub XX.sh` でジョブを実行したときに、生成されるジョブのログファイルを格納
 
 # 事前準備
 ## 1. warc ファイル一覧のテキストファイルを取得
@@ -120,3 +134,62 @@ python modify.py < INPUT_FILE > OUTPUT_FILE
 1. phase1, phase2, phase3(`doubri-minhash`, `doubri-init`, `doubri-self`): `doubri-self` が各 Group ごとで実行しているため他の処理も Group 単位で実行
 2. phase3(`doubri-other`): 処理にすべての Group の MinHash ファイルが必須なので、すべてのジョブが完了するのを待ってから実行。
 3. phase3(`doubri-apply`), phase4: ジョブが増え過ぎるのを防止するために、こちらも Group 単位で実行
+
+
+# 日本語文区切り
+https://github.com/wwwcojp/ja_sentence_segmenter を使用
+```
+poetry add ja_sentence_segmenter
+```
+
+`get_texts_sample.py`
+1. phase4.jsonl の各行からテキストを抽出
+2. 改行を削除してから、`ja_sentence_segmenter` を使用して文区切りを行う (配列が返ってくる)
+3. 取得したテキストの配列を外部テキストに出力(1 つの jsonl ファイルが 1 つのテキストファイルに対応)
+
+入力: `data/phase4/CC-MAIN-2023-23/CC-MAIN-20230527223515-20230528013515/CC-MAIN-20230527223515-20230528013515-00000-phase4.jsonl`
+出力: `data/texts/CC-MAIN-2023-23/CC-MAIN-20230527223515-20230528013515-00000-ja-sentence.txt`
+引数: WARC_HEAD=CC-MAIN-2023-23, WARC_PREFIX=CC-MAIN-20230527223515-20230528013515, WARC_INDEX=00001
+
+
+CC-MAIN-2023-23(1ヶ月分=100group)
+- CC-MAIN-20230527223515-20230528013515(1group=900 ファイル)
+  - CC-MAIN-20230527223515-20230528013515-00000-phase4.jsonl(1 ファイル)
+
+`single_group_seg.sh`
+- 指定したグループに対して、900 ファイルの jsonl ファイルそれぞれのテキストを抽出(`get_texts_sample.py` を 900 回実行)
+
+# 番外編
+## 出力ファイルの行数
+
+```sh
+for i in $(seq 0 799); do wc -l < data/phase4/CC-MAIN-2023-23/CC-MAIN-20230527223515-20230528013515/CC-MAIN-20230527223515-20230528013515-`printf "%05d" $i`-phase4.jsonl; done | awk '{sum += $1} END {print "Total lines:", sum}'
+for i in $(seq 0 799); do wc -l < data/texts/CC-MAIN-2023-23/CC-MAIN-20230527223515-20230528013515/`printf "%05d" $i`-ja-sentence.txt; done | awk '{sum += $1} END {print "Total lines:", sum}'
+```
+
+phase4 の group0 の行数: 1122630
+
+
+```sh
+for i in $(seq 0 13); do wc -l < data/texts/CC-MAIN-2023-23/`printf "%05d" $i`-ja-sentence.txt; done | awk '{sum += $1} END {print "Total lines:", sum}'
+```
+文区切り処理終了後の行数: 518243
+文区切り処理終了後の group0 の行数: 34040
+
+- group0-ja-sentence.txt の名前が 00000-ja-sentence.txt になっていたので修正してもう一度確認
+
+## group 0 の行数の推移
+- phase1, phase2, phase3, phase4, texts のそれぞれで行数を確認する
+- 最終的に取得したいものは group 内のすべてのテキスト数(行数)
+
+group1 lines: 1444095
+group2 lines: 1444095
+group3 lines: 1122630
+group4 lines: 1122630
+texts lines: 24548647
+
+## group 0 の実行時間の計測
+- step1's time: 38hours, 9minutes, 24seconds
+- step2's time: 0hours, 15minutes, 15seconds
+- step3's time: 0hours, 24minutes, 9seconds
+

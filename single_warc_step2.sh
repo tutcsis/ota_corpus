@@ -1,5 +1,5 @@
 START_TIME=$(date +%s)
-echo "step1 start: $(date)"
+echo "step3 start: $(date)"
 
 echo "GROUP_SIZE: ${GROUP_SIZE}, GROUP_LEN: ${GROUP_LEN}, group_i: ${group_i}, WARC_URL: ${WARC_URL}"
 
@@ -26,14 +26,14 @@ for curr_line in $(seq $((group_i*GROUP_SIZE+1)) $((group_i*GROUP_SIZE+GROUP_SIZ
   DOUBRI_DIR="doubri-1.0/build"
 
   # phase3(only doubri-apply), phase4
-  "${DOUBRI_DIR}/doubri-apply" "data/doubri_minhash/${WARC_PREFIX}/${WARC_INDEX}.hash.f" < "data/phase2/${WARC_PREFIX}/group_${group_i}/${BASE_NAME}-phase2.jsonl" > "data/phase3/${WARC_PREFIX}/group_${group_i}/${BASE_NAME}-phase3.jsonl"
-  poetry run python modify.py < "data/phase3/${WARC_PREFIX}/group_${group_i}/${BASE_NAME}-phase3.jsonl" > "data/phase4/${WARC_PREFIX}/group_${group_i}/${BASE_NAME}-phase4.jsonl"
+  "${DOUBRI_DIR}/doubri-apply" "data/doubri_minhash/${WARC_HEAD}/${WARC_PREFIX}/${WARC_INDEX}.hash.f" < "data/phase2/${WARC_HEAD}/${WARC_PREFIX}/${BASE_NAME}-phase2.jsonl" > "data/phase3/${WARC_HEAD}/${WARC_PREFIX}/${BASE_NAME}-phase3.jsonl"
+  poetry run python modify.py < "data/phase3/${WARC_HEAD}/${WARC_PREFIX}/${BASE_NAME}-phase3.jsonl" > "data/phase4/${WARC_HEAD}/${WARC_PREFIX}/${BASE_NAME}-phase4.jsonl"
 done
 
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME))
-echo "step1 is finished: $(date)"
-echo "step1's time: $((DURATION / 3600))hours, $((DURATION % 3600 / 60))minutes, $((DURATION % 60))seconds"
+echo "step3 is finished: $(date)"
+echo "step3's time: $((DURATION / 3600))hours, $((DURATION % 3600 / 60))minutes, $((DURATION % 60))seconds"
 
 
 mv "./log/${PBS_JOBID}.OU" "./log/${PBS_JOBNAME}.o${PBS_JOBID%.xregistry*}"
